@@ -11,6 +11,7 @@ class LineFollower(Node):
     def __init__(self):
         super().__init__('path_tracking')
         self.bridge = CvBridge()
+
         self.last_offset = 0
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
         self.subscription = self.create_subscription(
@@ -21,23 +22,24 @@ class LineFollower(Node):
         )
         self.get_logger().info("LineFollower node has been started.")
 
+    
     def image_callback(self, msg):
         try:
             # Convert CompressedImage to OpenCV image
             frame = self.bridge.compressed_imgmsg_to_cv2(msg, "bgr8")
 
             # Process the image to detect the line and calculate offset
-            frame_with_lines, offset = self.detect_line_and_offset(frame)
+            offset = self.detect_line_and_offset(frame)
 
             # Compute Twist message based on the offset
             twist = Twist()
-            twist.linear.x = 0.2  # Set a constant forward speed
-            twist.angular.z = -0.05 * offset  # Proportional control for angular velocity
+            twist.linear.x = 0.17  # Set a constant forward speed
+            twist.angular.z = -0.07 * offset  # Proportional control for angular velocity
             self.publisher.publish(twist)
 
-            # Optional: display the processed image for debugging
-            cv2.imshow("Line Detection", frame_with_lines)
-            cv2.waitKey(1)
+            # # Optional: display the processed image for debugging
+            # cv2.imshow("Line Detection", frame_with_lines)
+            # cv2.waitKey(1)
 
         except Exception as e:
             self.get_logger().error(f"Error processing image: {e}")
@@ -80,7 +82,6 @@ class LineFollower(Node):
         if lines is not None:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
-                cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 line_positions.extend([x1, x2])
 
         # Calculate the offset
@@ -92,10 +93,7 @@ class LineFollower(Node):
         else:
             scaled_offset = self.last_offset
 
-        # Display the offset on the image
-        cv2.putText(frame, f"Offset: {scaled_offset:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-
-        return frame, scaled_offset
+        return scaled_offset
 
 
 def main(args=None):

@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'sensors_node = robot_behavior.sensor_avoidance:main',
-            'path_tracking_node = robot_behavior.path_tracking:main'
+            'path_tracking_debug = robot_behavior.path_tracking:main',
+            'path_tracking_node = robot_behavior.path_tracking_v2:main'
         ],
     },
 )
