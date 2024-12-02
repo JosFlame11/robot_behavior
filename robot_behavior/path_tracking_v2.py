@@ -13,7 +13,7 @@ class LineFollower(Node):
         self.bridge = CvBridge()
 
         self.last_offset = 0
-        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.publisher = self.create_publisher(Twist, '/cmd_vel/follower', 10)
         self.subscription = self.create_subscription(
             CompressedImage,
             '/image_raw/compressed',

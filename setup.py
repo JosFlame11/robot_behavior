@@ -22,7 +22,11 @@ setup(
         'console_scripts': [
             'sensors_node = robot_behavior.sensor_avoidance:main',
             'path_tracking_debug = robot_behavior.path_tracking:main',
-            'path_tracking_node = robot_behavior.path_tracking_v2:main'
+            'path_tracking_node = robot_behavior.path_tracking_v2:main',
+            'david_node = robot_behavior.go_to_goal:main',
+            'av_node = robot_behavior.artificial_vision:main',
+            'vision_cmd = robot_behavior.vision_cmd:main',
+            'cmd_node = robot_behavior.coordinator:main',
         ],
     },
 )

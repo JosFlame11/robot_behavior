@@ -3,7 +3,7 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 # from sensor_msgs.msg import Laser
-from std_msgs.msg import Int8
+from std_msgs.msg import Int8, Bool
 
 class ObjectAvoidance(Node):
     def __init__(self):
@@ -29,8 +29,13 @@ class ObjectAvoidance(Node):
         )
         self.cmd_vel_publisher = self.create_publisher(
             Twist,
-            '/cmd_vel',
+            '/cmd_vel/sensors',
             #'cmd_vel_sensors',
+            10
+        )
+        self.active_state_publisher = self.create_publisher(
+            Bool,
+            '/sensor_avoidance/active',
             10
         )
 
@@ -41,7 +46,6 @@ class ObjectAvoidance(Node):
         self.MAX_LINEAR_VEL = 0.25
         self.MAX_ANGULAR_VEL = 1.0
 
-        self.publish_cmd_vel
 
     def left_sensor_callback(self, msg):
         # Check if there is an obstacle in the left sensor
@@ -49,7 +53,7 @@ class ObjectAvoidance(Node):
             self.is_object_left = True
         else:
             self.is_object_left = False
-        self.publish_cmd_vel()
+        self.evaluate_and_publish_state()
 
     def right_sensor_callback(self, msg):
         # Check if there is an obstacle in the right sensor
@@ -57,7 +61,7 @@ class ObjectAvoidance(Node):
             self.is_object_right = True
         else:
             self.is_object_right = False
-        self.publish_cmd_vel()
+        self.evaluate_and_publish_state()
 
     def front_sensor_callback(self, msg):
         # Check if there is an obstacle in the front sensor
@@ -65,8 +69,20 @@ class ObjectAvoidance(Node):
             self.is_object_front = True
         else:
             self.is_object_front = False
-        self.publish_cmd_vel()
+        self.evaluate_and_publish_state()
 
+    def evaluate_and_publish_state(self):
+        # Determine if the sensor_avoidance node should be active
+        active = self.is_object_front or self.is_object_left or self.is_object_right
+
+        # Publish the active state flag
+        active_state_msg = Bool()
+        active_state_msg.data = active
+        self.active_state_publisher.publish(active_state_msg)
+
+        # Publish velocity commands if active
+        if active:
+            self.publish_cmd_vel()
     def publish_cmd_vel(self):
         # Publish a Twist message to the cmd_vel topic
         twist = Twist()
@@ -89,9 +105,6 @@ class ObjectAvoidance(Node):
             twist.linear.x = self.MAX_LINEAR_VEL * 0.4
             twist.angular.z = self.MAX_ANGULAR_VEL
 
-        else:
-            twist.linear.x = self.MAX_LINEAR_VEL
-            twist.angular.z = 0.0
 
         self.cmd_vel_publisher.publish(twist)
 
