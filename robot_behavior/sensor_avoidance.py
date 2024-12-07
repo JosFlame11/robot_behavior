@@ -49,7 +49,7 @@ class ObjectAvoidance(Node):
 
     def left_sensor_callback(self, msg):
         # Check if there is an obstacle in the left sensor
-        if msg.data == 0:
+        if msg.data == 1:
             self.is_object_left = True
         else:
             self.is_object_left = False
@@ -57,7 +57,7 @@ class ObjectAvoidance(Node):
 
     def right_sensor_callback(self, msg):
         # Check if there is an obstacle in the right sensor
-        if msg.data == 0:
+        if msg.data == 1:
             self.is_object_right = True
         else:
             self.is_object_right = False
@@ -65,7 +65,7 @@ class ObjectAvoidance(Node):
 
     def front_sensor_callback(self, msg):
         # Check if there is an obstacle in the front sensor
-        if msg.data == 0:
+        if msg.data == 1:
             self.is_object_front = True
         else:
             self.is_object_front = False

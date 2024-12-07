@@ -8,7 +8,7 @@ import math
 class GoToGoal(Node):
     def __init__(self):
         super().__init__('go_to_goal_node')
-        self.odom_sub = self.create_subscription(Odometry, '/minimal_driver/odom', self.update_position, 10)
+        self.odom_sub = self.create_subscription(Odometry, '/minimal_controller/odom', self.update_position, 10)
         self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel/go2goal', 10)
 
         self.x = 0.0
@@ -21,7 +21,7 @@ class GoToGoal(Node):
         self.goal_x = float(input("Set your x goal position: "))
         self.goal_y = float(input("Set your y goal position: "))
 
-        self.distance_tolerance = 0.01
+        self.distance_tolerance = 0.1
         self.goal_reach = False
 
     def update_position(self, msg):
@@ -59,7 +59,7 @@ class GoToGoal(Node):
         #Controller for navigation
         if distance_to_goal > self.distance_tolerance:
             # Linear velocity in the x-axis.
-            vel_msg.linear.x = self.k1 * distance_to_goal
+            vel_msg.linear.x = 2.5 #self.k1 * distance_to_goal #Change to fixed value for only tracking the angular position
 
             # Angular velocity in the z-axis.
             vel_msg.angular.z = self.k2 * angular_error
@@ -79,9 +79,10 @@ class GoToGoal(Node):
             self.goal_reached = True
             self.get_logger().info("Goal reached!")
 
-            # Shut down the node
-            self.destroy_node()
-            rclpy.shutdown()
+            if rclpy.ok():
+                # Shut down the node
+                self.destroy_node()
+                rclpy.shutdown()
 
 def main(args=None):
     rclpy.init(args=args)
